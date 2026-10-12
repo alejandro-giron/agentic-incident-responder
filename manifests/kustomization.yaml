@@ -1,0 +1,17 @@
+# Online Boutique, vendored unmodified from
+# https://github.com/GoogleCloudPlatform/microservices-demo/blob/v0.10.7/release/kubernetes-manifests.yaml
+# Local tweaks live here so the upstream file can be re-vendored as-is.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - kubernetes-manifests.yaml
+patches:
+  # Light, steady background traffic: enough to surface errors in logs
+  # without eating the CPU budget of a laptop/codespace.
+  - target:
+      kind: Deployment
+      name: loadgenerator
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/1/value
+        value: "5"
