@@ -5,7 +5,11 @@ Practise incident response against Google's [Online Boutique](https://github.com
 to be healthy, and then injects a **hidden** random failure for you, or later an SRE agent, to find.
 
 ## Requirements
-Linux with Docker. The pods request about 1.6 CPU and 1.3 GiB of memory in total; 4 CPUs is plenty.
+The easiest setup is the dev container in `.devcontainer/`: open the repo in GitHub Codespaces or with VS Code
+"Reopen in Container". It includes Docker, kubectl, Python, pytest and Claude Code, sets `KUBECONFIG` to
+`.chaos/kubeconfig`, and applies the networking fix from Troubleshooting automatically.
+
+Otherwise you need Linux with Docker. The pods request about 1.6 CPU and 1.3 GiB of memory in total; 4 CPUs is plenty.
 
 ## Run a drill
 ```sh
@@ -45,7 +49,8 @@ make e2e     # every scenario against a real cluster: inject → symptom → hea
 **API server times out / pods stuck pulling `rancher/mirrored-pause`.** Containers on user-defined Docker
 networks can't reach each other or the internet. On some hosts (seen in GitHub Codespaces with docker-in-docker),
 stale `iptables-legacy` rules set `FORWARD` policy to DROP and only allow `docker0`. Check with
-`sudo iptables-legacy -S FORWARD`. To fix, allow Docker's user bridges:
+`sudo iptables-legacy -S FORWARD`. The dev container fixes this on every start with
+`.devcontainer/fix-docker-forwarding.sh`. To fix it by hand, allow Docker's user bridges:
 ```sh
 sudo iptables-legacy -I FORWARD -i br-+ -j ACCEPT
 sudo iptables-legacy -I FORWARD -o br-+ -j ACCEPT

@@ -1,0 +1,34 @@
+{
+  "name": "agentic-incident-responder",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    // Runs the k3d cluster (as sibling containers) and builds the chaos-lab image.
+    "ghcr.io/devcontainers/features/docker-in-docker:4": {},
+    // kubectl on the host for investigating incidents; same version as the chaos-lab image.
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "version": "1.37.0",
+      "helm": "none",
+      "minikube": "none"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    },
+    // Claude Code is installed through npm.
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+  // Online Boutique requests ~1.6 CPU on top of k3s itself.
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb"
+  },
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": { "label": "Online Boutique storefront", "onAutoForward": "notify" }
+  },
+  "containerEnv": {
+    "KUBECONFIG": "${containerWorkspaceFolder}/.chaos/kubeconfig"
+  },
+  "postCreateCommand": "pip install --user pytest==9.1.1",
+  "postStartCommand": "bash .devcontainer/fix-docker-forwarding.sh"
+}
